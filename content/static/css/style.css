@@ -1,5 +1,9 @@
 /* -*- tab-width: 4 -*- */
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code&family=Source+Sans+Pro&family=Source+Serif+Pro&display=swap");
+
+@font-face {
+  font-family: "Unifont";
+  src: url("/static/assets/unifont-12.0.01.woff2") format("woff2");
+}
 
 :root {
   --color-background: white;
@@ -9,6 +13,7 @@
   --color-link: #0000bb;
   --color-link-active: #223fbf;
   --border-width: 2px;
+  font-family: "Unifont", monospace;
 }
 
 @media (prefers-color: light) {
@@ -43,12 +48,7 @@ body {
 }
 
 p {
-  font-family: "Source Serif Pro", serif;
-  line-height: 150%;
-}
-
-code {
-  font-family: "Fira Code", monospace;
+  line-height: 130%;
 }
 
 #content > * {
@@ -78,7 +78,6 @@ code {
 }
 
 #org-div-home-and-up a {
-  font-family: monospace;
   font-size: 1.4em;
   margin: 0 0.5ex;
   padding: 0.2ex 0.4ex;
@@ -91,7 +90,6 @@ code {
 
 #updated {
   font-size: 90%;
-  font-family: monospace;
   color: var(--color-secondary);
   padding: 1.5em 1em 0.75em;
   border-bottom: 1px dotted var(--color-secondary);
@@ -107,17 +105,7 @@ nav a {
   text-decoration: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Source Sans Pro", sans-serif;
-}
-
 .title {
-  font-family: monospace;
   font-size: 2.8em;
   max-width: 80rem;
 }
@@ -151,7 +139,6 @@ figure {
 }
 
 figcaption {
-  font-family: monospace;
   padding: 1ex;
 }
 
@@ -190,8 +177,9 @@ pre {
   border: var(--border-width) solid var(--color-text);
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
-  font-family: "Fira Code", monospace;
   font-size: 88%;
+  font-family: "Unifont", monospace;
+  line-height: 110%;
 }
 
 kbd {
@@ -207,24 +195,20 @@ kbd {
 }
 
 .todo {
-  font-family: monospace;
   color: red;
 }
 .done {
-  font-family: monospace;
   color: green;
 }
 
 .tag {
   background-color: #eee;
-  font-family: monospace;
   padding: 2px;
   font-size: 80%;
   font-weight: normal;
 }
 
 .timestamp {
-  font-family: monospace;
   color: var(--color-secondary);
 }
 
@@ -240,7 +224,6 @@ h6 .timestamp {
 
 .published {
   font-size: 1.3em;
-  font-family: monospace;
   color: var(--color-secondary);
 }
 
@@ -279,7 +262,6 @@ footer {
 }
 
 .generated {
-  font-family: monospace;
   text-align: center;
 }
 
