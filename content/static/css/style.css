@@ -1,8 +1,9 @@
 /* -*- tab-width: 4 -*- */
+@import url("https://cdn.staticfile.org/lxgw-wenkai-screen-webfont/1.6.0/style.css");
 
 @font-face {
-  font-family: "Unifont";
-  src: url("/static/assets/unifont-12.0.01.woff2") format("woff2");
+  font-family: "Unifont", monospace;
+  src: url(/static/assets/unifont-12.0.01.woff2) format("woff2");
 }
 
 :root {
@@ -13,7 +14,7 @@
   --color-link: #0000bb;
   --color-link-active: #223fbf;
   --border-width: 2px;
-  font-family: "Unifont", monospace;
+  font-family: "LXGW WenKai Screen", sans-serif;
 }
 
 @media (prefers-color: light) {
@@ -26,17 +27,6 @@
     --color-link-active: #223fbf;
   }
 }
-
-/* @media (prefers-color: dark) { */
-/*   :root { */
-/*     --color-background: #000000; */
-/*     --color-text: #ffffff; */
-/*     --color-secondary: #eee; */
-/*     --color-shadow: #333; */
-/*     --color-link: #00bcff; */
-/*     --color-link-active: #79a8ff; */
-/*   } */
-/* } */
 
 body {
   font-size: 110%;
