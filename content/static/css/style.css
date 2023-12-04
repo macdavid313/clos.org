@@ -1,10 +1,7 @@
 /* -*- tab-width: 4 -*- */
 @import url("https://cdn.staticfile.org/lxgw-wenkai-screen-webfont/1.6.0/style.css");
 
-@font-face {
-  font-family: "Unifont", monospace;
-  src: url(/static/assets/unifont-12.0.01.woff2) format("woff2");
-}
+@import url("https://fonts.cdnfonts.com/css/fantasque-sans-mono");
 
 :root {
   --color-background: white;
@@ -168,7 +165,7 @@ pre {
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
   font-size: 88%;
-  font-family: "Unifont", monospace;
+  font-family: "Fantasque Sans Mono", sans-serif;
   line-height: 110%;
 }
 
