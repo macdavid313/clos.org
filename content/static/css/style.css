@@ -1,4 +1,4 @@
-@import url("//unpkg.com/heti/umd/heti.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Serif+SC:wght@400;700&display=swap");
 
 :root {
   --color-background: white;
@@ -28,10 +28,11 @@ body {
   max-width: 59rem;
   color: var(--color-text);
   background: var(--color-background);
+  font-family: "Lora", "Noto Serif SC", monospace;
 }
 
 p {
-  line-height: 130%;
+  line-height: 140%;
 }
 
 #content > * {
@@ -161,6 +162,7 @@ pre {
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
   font-size: 88%;
+  font-family: "Courier Prime", monospace;
 }
 
 kbd {
