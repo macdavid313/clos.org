@@ -1,7 +1,4 @@
-/* -*- tab-width: 4 -*- */
-@import url("https://cdn.staticfile.org/lxgw-wenkai-screen-webfont/1.6.0/style.css");
-
-@import url("https://fonts.cdnfonts.com/css/fantasque-sans-mono");
+@import url("//unpkg.com/heti/umd/heti.min.css");
 
 :root {
   --color-background: white;
@@ -11,7 +8,6 @@
   --color-link: #0000bb;
   --color-link-active: #223fbf;
   --border-width: 2px;
-  font-family: "LXGW WenKai Screen", sans-serif;
 }
 
 @media (prefers-color: light) {
@@ -165,8 +161,6 @@ pre {
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
   font-size: 88%;
-  font-family: "Fantasque Sans Mono", sans-serif;
-  line-height: 110%;
 }
 
 kbd {
