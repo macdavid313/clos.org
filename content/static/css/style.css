@@ -1,3 +1,4 @@
+/* -*- tab-width: 4 -*- */
 @import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Serif+SC:wght@400;700&display=swap");
 
 :root {
@@ -10,7 +11,7 @@
   --border-width: 2px;
 }
 
-@media (prefers-color: light) {
+@media (prefers-color-scheme: light) {
   :root {
     --color-background: #ffffff;
     --color-text: #000000;
@@ -21,6 +22,17 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #000000;
+    --color-text: #ffffff;
+    --color-secondary: #eee;
+    --color-shadow: #333;
+    --color-link: #00bcff;
+    --color-link-active: #79a8ff;
+  }
+}
+
 body {
   font-size: 110%;
   margin: 0 auto;
@@ -28,11 +40,11 @@ body {
   max-width: 59rem;
   color: var(--color-text);
   background: var(--color-background);
-  font-family: "Lora", "Noto Serif SC", monospace;
 }
 
 p {
-  line-height: 140%;
+  font-family: "Lora", "Noto Serif SC", serif;
+  line-height: 150%;
 }
 
 #content > * {
@@ -62,6 +74,7 @@ p {
 }
 
 #org-div-home-and-up a {
+  font-family: monospace;
   font-size: 1.4em;
   margin: 0 0.5ex;
   padding: 0.2ex 0.4ex;
@@ -74,6 +87,7 @@ p {
 
 #updated {
   font-size: 90%;
+  font-family: monospace;
   color: var(--color-secondary);
   padding: 1.5em 1em 0.75em;
   border-bottom: 1px dotted var(--color-secondary);
@@ -89,7 +103,17 @@ nav a {
   text-decoration: none;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: sans-serif;
+}
+
 .title {
+  font-family: monospace;
   font-size: 2.8em;
   max-width: 80rem;
 }
@@ -108,22 +132,18 @@ a:active {
 figure {
   display: flex;
   flex-direction: column;
-  margin: auto;
-  margin-top: 3%;
-  margin-bottom: 3%;
-  margin-left: 5%;
-  margin-right: 5%;
+  align-items: center;
 }
 
 #content img {
-  border: var(--border-width) solid var(--color-text);
-  max-width: 100%;
-  height: auto;
-  margin: auto;
+  /* border: var(--border-width) solid var(--color-text);  */
+  max-width: 95vw;
+  max-height: auto;
 }
 
 figcaption {
-  padding: 1ex;
+  font-family: monospace;
+  padding-top: 1ex;
 }
 
 blockquote {
@@ -161,8 +181,8 @@ pre {
   border: var(--border-width) solid var(--color-text);
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
-  font-size: 88%;
   font-family: "Courier Prime", monospace;
+  font-size: 0.88em;
 }
 
 kbd {
@@ -178,20 +198,24 @@ kbd {
 }
 
 .todo {
+  font-family: monospace;
   color: red;
 }
 .done {
+  font-family: monospace;
   color: green;
 }
 
 .tag {
   background-color: #eee;
+  font-family: monospace;
   padding: 2px;
   font-size: 80%;
   font-weight: normal;
 }
 
 .timestamp {
+  font-family: monospace;
   color: var(--color-secondary);
 }
 
@@ -207,6 +231,7 @@ h6 .timestamp {
 
 .published {
   font-size: 1.3em;
+  font-family: monospace;
   color: var(--color-secondary);
 }
 
@@ -245,6 +270,7 @@ footer {
 }
 
 .generated {
+  font-family: monospace;
   text-align: center;
 }
 
