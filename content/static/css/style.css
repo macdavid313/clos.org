@@ -1,7 +1,15 @@
 /* -*- tab-width: 4 -*- */
-@import url("https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+SC:wght@100;200;300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@200;300;400;500;600;700;900&display=swap");
+/* Sans-serif font */
+@import url("https://fonts.googleapis.com/css2?family=Ysabeau+Office:ital,wght@0,1..1000;1,1..1000&display=swap");
 
-:root {
+/* 中文字体 */
+/* https://github.com/CMBill/lxgw-wenkai-screen-web */
+@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css");
+
+/* Monospace font */
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap");
+
+root {
   --color-background: white;
   --color-text: black;
   --color-secondary: #333;
@@ -43,7 +51,7 @@ body {
 }
 
 p {
-  font-family: "Lora", "Noto Serif SC", serif;
+  font-family: "Ysabeau Office", "LXGW WenKai Screen", sans-serif;
   line-height: 150%;
 }
 
@@ -74,7 +82,7 @@ p {
 }
 
 #org-div-home-and-up a {
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   font-size: 1.4em;
   margin: 0 0.5ex;
   padding: 0.2ex 0.4ex;
@@ -87,7 +95,7 @@ p {
 
 #updated {
   font-size: 90%;
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   color: var(--color-secondary);
   padding: 1.5em 1em 0.75em;
   border-bottom: 1px dotted var(--color-secondary);
@@ -109,11 +117,11 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Noto Sans SC", sans-serif;
+  font-family: "Ysabeau Office", "LXGW WenKai Screen", sans-serif;
 }
 
 .title {
-  font-family: "Noto Sans SC", sans-serif;
+  font-family: "Ysabeau Office", "LXGW WenKai Screen", sans-serif;
   font-size: 2.8em;
   max-width: 80rem;
 }
@@ -142,7 +150,7 @@ figure {
 }
 
 figcaption {
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   padding-top: 1ex;
 }
 
@@ -181,7 +189,7 @@ pre {
   border: var(--border-width) solid var(--color-text);
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   font-size: 0.88em;
 }
 
@@ -198,24 +206,24 @@ kbd {
 }
 
 .todo {
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   color: red;
 }
 .done {
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   color: green;
 }
 
 .tag {
   background-color: #eee;
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   padding: 2px;
   font-size: 80%;
   font-weight: normal;
 }
 
 .timestamp {
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   color: var(--color-secondary);
 }
 
@@ -231,7 +239,7 @@ h6 .timestamp {
 
 .published {
   font-size: 1.3em;
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   color: var(--color-secondary);
 }
 
@@ -270,7 +278,7 @@ footer {
 }
 
 .generated {
-  font-family: "Courier Prime", monospace;
+  font-family: "Inconsolata", monospace;
   text-align: center;
 }
 
