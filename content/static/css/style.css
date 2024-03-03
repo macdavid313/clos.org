@@ -143,8 +143,8 @@ figure {
 }
 
 #content img {
-  /* border: var(--border-width) solid var(--color-text);  */
-  max-width: 95vw;
+  border: var(--border-width) solid var(--color-text);
+  max-width: 100%;
   max-height: auto;
 }
 
