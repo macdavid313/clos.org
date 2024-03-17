@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notes on Deploying Common Lisp Web Services</title>
+<meta name="generator" content="Org Mode" />
+
+<meta name="author" content="Tianyu Gu"/>
+<link rel="shortcut icon" href="/static/img/favicon.ico">
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="/static/css/modus-operandi.css" type="text/css"/>
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"  href="/static/css/modus-vivendi.css"  type="text/css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div id="org-div-home-and-up">
+  <a href="/posts/index.html">Blog</a>
+  <a href="/">Home</a>
+</div>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Notes on Deploying Common Lisp Web Services</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org9cd7fb0">1. 1. TMUX</a>
+<ul>
+<li><a href="#org56c319c">1.1. 1.1 for creating a new session</a></li>
+<li><a href="#org7f3fded">1.2. 1.2 for attaching a session</a></li>
+<li><a href="#org86d6bf8">1.3. 1.3 for detaching from a session</a></li>
+<li><a href="#org861c6d7">1.4. 1.4 for killing a session</a></li>
+<li><a href="#org8dabdc2">1.5. 1.5 for sending keys to a session</a></li>
+</ul>
+</li>
+<li><a href="#orged30779">2. 2. Supervisor</a></li>
+</ul>
+</div>
+</nav>
+<p>
+I’m recently finishing a Common Lisp web service used inside a company. An
+essential part of the reason why I choose Lisp in this case is, <b>CLOS</b>, one of
+the most powerful tools for designing complicated concepts. It’s a nice
+experience using CLOS to successfully solve some hard problems along with
+extending some components.
+</p>
+
+<p>
+However, the embarrassing thing is I’ve never delivered a web application
+before, all I know is developing, debugging within SLIME and writing some
+scripts to deliver a binary executable so far. Web applications, however, are
+long-running services (or better said, “processes”). Once the services are
+started, you’d wish there are some tools to stop or restart them, basically. And
+if the service crashes somehow or the machine just has restarted due to some
+maintenance, it would be wonderful that the service itself could restart
+automatically. In this article, I therefore try to introduce <i>two</i> solutions
+that may just work for whoever is or will be searching for similar questions on
+the Internet.
+</p>
+
+<div id="outline-container-org9cd7fb0" class="outline-2">
+<h2 id="org9cd7fb0"><span class="section-number-2">1.</span> 1. TMUX</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+<b>tmux</b><sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> is a software application that can be used to multiplex several
+virtual consoles, allowing a user to access multiple separate terminal sessions
+inside a single terminal window or remote terminal session. Before I got used to
+Emacs, I used tmux way much more to manage sessions on Linux. After all, Emacs
+is just an editor, no matter how much I love it. By using <b>tmux</b>, one can
+attach/detach sessions in an absolutely <i>sane</i> way. So, here are some recipes.
+</p>
+</div>
+
+<div id="outline-container-org56c319c" class="outline-3">
+<h3 id="org56c319c"><span class="section-number-3">1.1.</span> 1.1 for creating a new session</h3>
+<div class="outline-text-3" id="text-1-1">
+<div class="org-src-container">
+<pre class="src src-sh">tmux new -s session-name
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7f3fded" class="outline-3">
+<h3 id="org7f3fded"><span class="section-number-3">1.2.</span> 1.2 for attaching a session</h3>
+<div class="outline-text-3" id="text-1-2">
+<div class="org-src-container">
+<pre class="src src-sh">tmux a -t session-name
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org86d6bf8" class="outline-3">
+<h3 id="org86d6bf8"><span class="section-number-3">1.3.</span> 1.3 for detaching from a session</h3>
+<div class="outline-text-3" id="text-1-3">
+<div class="org-src-container">
+<pre class="src src-sh">tmux detach <span class="org-comment-delimiter"># </span><span class="org-comment">or use the shortcut 'Ctrl-b d'</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org861c6d7" class="outline-3">
+<h3 id="org861c6d7"><span class="section-number-3">1.4.</span> 1.4 for killing a session</h3>
+<div class="outline-text-3" id="text-1-4">
+<div class="org-src-container">
+<pre class="src src-sh">tmux kill-session -t session-name
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8dabdc2" class="outline-3">
+<h3 id="org8dabdc2"><span class="section-number-3">1.5.</span> 1.5 for sending keys to a session</h3>
+<div class="outline-text-3" id="text-1-5">
+<div class="org-src-container">
+<pre class="src src-sh">tmux send-keys -t session-name <span class="org-string">"(+ 1 2 3)"</span> C-m
+</pre>
+</div>
+
+<p>
+One might be curious what does <code>send-keys</code> subcommand do exactly. In the above
+example, first imagine we already have a session where SBCL got started, tmux
+then sent an expression <code>(+ 1 2 3)</code> to Lisp followed by a <code>new line</code> which is
+indicated by <code>C-m</code>:
+</p>
+
+
+<figure id="orgd4fc78e">
+<img src="../static/img/tmux_send_keys_example.gif" alt="tmux_send_keys_example.gif">
+
+</figure>
+
+<p>
+Now you can see, by using <code>send-keys</code>, one can write shell scripts to start,
+stop, reload (<b>fasl</b> files), restart lisp services or just send any expressions
+to evaluate without putting too much efforts into it. For more information about
+tmux’s commands, please check its <a href="http://man.openbsd.org/OpenBSD-current/man1/tmux.1">manual</a>.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orged30779" class="outline-2">
+<h2 id="orged30779"><span class="section-number-2">2.</span> 2. Supervisor</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+<b>tmux</b> is both powerful and flexible, however, it can not tell us (through, for
+example, logging) if the server crashed or even restarted itself automatically
+after an unexpected crashed. We thus need some sort of processes management
+tool.
+</p>
+
+<p>
+<b>Supervisor</b> is a client/server system that allows its users to monitor and
+control a number of processes on UNIX-like operating systems<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>. This is a
+piece of Python software, and it is for Python 2.x only. I’m definitely not the
+first one who came up with using this tool, as a matter of fact, way back at
+2013, <a href="https://github.com/fukamachi">Fukamachi</a> wrote an <a href="http://blog.8arrow.org/entry/20130320/1363787619">essay</a> talking about how he managed to deploy
+<b>Quickdocs<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup></b> web services. In that paper, <b>Supervisor</b> along with <b>Nginx</b>
+is proposed, and <b>Clack</b>, a piece of software written by himself was used as
+well.
+</p>
+
+<p>
+Fukamachi didn’t write the essay in English, unfortunately, but it’s not hard to
+understand what he proposed. Basically, one can prepare a <b>Makefile</b> like this
+to start the service:
+</p>
+
+<pre class="example" id="orgf7977be">
+SERVER_PORT=8000
+SWANK_PORT=4005
+
+define sbcl
+	sbcl --noinform --disable-debugger \
+		--load /home/david/quicklisp/setup.lisp \
+		--eval '(progn $1)' \
+		--eval '(progn $2)'
+endef
+
+start:
+	$(call sbcl, \
+		(ql:quickload :lucerne-hello-world) (ql:quickload :swank), \
+		(lucerne:start lucerne-hello-world:app :port $(SERVER_PORT)) \
+		(swank:create-server :port $(SWANK_PORT) :style :spawn :dont-close t))
+</pre>
+
+<p>
+Then define your service in <i>supervisord.conf</i>:
+</p>
+
+<pre class="example" id="org1244e05">
+[program:lucerne]
+command=make -f /paht-to-your-Makefile/Makefile start
+directory=/your-project-path
+numprocs=1
+autostart=true
+autorestart=true
+user=david
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/lucerne-hello-world.log
+</pre>
+
+<p>
+For more information about how to use <b>Supervisor</b>, please check its
+documentation which is very comprehensive and easy to understand. The last thing
+I want to discuss is, within the above <b>Makefile</b> example, one may notice that
+we start a <b>swank</b> server besides the Lisp web service. <b>Supervisor</b> can indeed
+monitor services, but what about if we want to compile lisp code even when the
+service is running? That is, we don’t want to issue <code>sudo service supervisor
+restart</code> but just re-compile and load pieces of <b>fasl</b> files into the original
+Lisp image and keep it running. Within Emacs, one can manage to achieve that
+goal by issuing <code>M-x slime-connect 127.0.0.1 4005</code><sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup> and then start to
+re-compile (<code>C-c C-c</code>) definitions or just inspect and debug, dynamically. In
+the end, one can even connect to a Lisp image which is deployed at a remote
+machine. Please check the documentation at this <a href="https://common-lisp.net/project/slime/doc/html/Connecting-to-a-remote-lisp.html#Connecting-to-a-remote-lisp">page</a>.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Wikipedia, tmux, <a href="https://en.wikipedia.org/wiki/Tmux">https://en.wikipedia.org/wiki/Tmux</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Supervisor: A Process Control System, <a href="http://supervisord.org">http://supervisord.org</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Quickdocs, Library Documentation Hosting for Common Lisp, <a href="http://quickdocs.org/">http://quickdocs.org/</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+If your specified the port 4005 for swank, of course.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<hr/>
+<footer>
+  <div class="generated">
+    Created with <a href="https://www.gnu.org/software/emacs/">Emacs</a> 29.2 (<a href="https://orgmode.org">Org</a> mode 9.6.15) on <a href="https://www.debian.org/">Debian</a> <a href="https://www.gnu.org">GNU</a>/<a href="https://www.kernel.org/">Linux</a>
+  </div>
+</footer>
+</div>
+</body>
+</html>
