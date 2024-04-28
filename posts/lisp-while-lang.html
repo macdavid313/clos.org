@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Common Lisp Solution to While Language</title>
+<meta name="generator" content="Org Mode" />
+
+<meta name="author" content="Tianyu Gu"/>
+<link rel="shortcut icon" href="/static/img/favicon.ico">
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="/static/css/modus-operandi.css" type="text/css"/>
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"  href="/static/css/modus-vivendi.css"  type="text/css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div id="org-div-home-and-up">
+  <a href="/posts/index.html">Blog</a>
+  <a href="/">Home</a>
+</div>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Common Lisp Solution to While Language</h1>
+</header><p>
+I have written a solution to Hackerrank's problem <a href="https://www.hackerrank.com/challenges/while-language-fp/problem">While Language</a> in Common
+Lisp, solely for fun. Several years ago, I have solved it using OCaml.
+</p>
+
+<p>
+Where does 'fun' come from? In Lisp, it's really easy to construct ASTs. In a
+lot of scenarios, you can effortlessly <b>transpile</b> source code into Lisp forms
+and then ask your Lisp implementation to analyse, optimise and execute it. For
+example, after lexing and parsing, I have written a function <code>gen-lisp-code</code> to
+expose the transpiled Lisp code:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(pprint (gen-lisp-code <span class="org-string">"fact := 1 ;</span>
+<span class="org-string">val := 10000 ;</span>
+<span class="org-string">cur := val ;</span>
+<span class="org-string">mod := 1000000007 ;</span>
+
+<span class="org-string">while ( cur &gt; 1 )</span>
+<span class="org-string">  do</span>
+<span class="org-string">   {</span>
+<span class="org-string">      fact := fact * cur ;</span>
+<span class="org-string">      fact := fact - fact / mod * mod ;</span>
+<span class="org-string">      cur := cur - 1</span>
+<span class="org-string">   } ;</span>
+
+<span class="org-string">cur := 0"</span>))
+
+<span class="org-comment-delimiter">#|</span>
+<span class="org-comment">(LAMBDA ()</span>
+<span class="org-comment">  (LET* ((|cur| 0) (|fact| 0) (|mod| 0) (|val| 0))</span>
+<span class="org-comment">    (DECLARE (OPTIMIZE SPEED (SPACE 0) (SAFETY 1))</span>
+<span class="org-comment">             (TYPE (INTEGER 0 2000000000000000000) |cur| |fact| |mod| |val|))</span>
+<span class="org-comment">    (SETF |fact| 1)</span>
+<span class="org-comment">    (SETF |val| 10000)</span>
+<span class="org-comment">    (SETF |cur| |val|)</span>
+<span class="org-comment">    (SETF |mod| 1000000007)</span>
+<span class="org-comment">    (DO ()</span>
+<span class="org-comment">        ((NOT (&gt; |cur| 1)))</span>
+<span class="org-comment">      (SETF |fact| (* |fact| |cur|))</span>
+<span class="org-comment">      (SETF |fact| (- |fact| (* (FLOOR (/ |fact| |mod|)) |mod|)))</span>
+<span class="org-comment">      (SETF |cur| (- |cur| 1)))</span>
+<span class="org-comment">    (SETF |cur| 0)</span>
+<span class="org-comment">    (FORMAT T "~a ~d~%" "cur" |cur|)</span>
+<span class="org-comment">    (FORMAT T "~a ~d~%" "fact" |fact|)</span>
+<span class="org-comment">    (FORMAT T "~a ~d~%" "mod" |mod|)</span>
+<span class="org-comment">    (FORMAT T "~a ~d~%" "val" |val|)))</span>
+<span class="org-comment-delimiter">|#</span>
+</pre>
+</div>
+
+<p>
+Afterwards, the lambda definition can be sent to Lisp's <code>compile</code> function and
+generate a Lisp function which can be excuted to print the desired results:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(funcall (compile nil (gen-lisp-code <span class="org-string">"fact := 1 ;</span>
+<span class="org-string">val := 10000 ;</span>
+<span class="org-string">cur := val ;</span>
+<span class="org-string">mod := 1000000007 ;</span>
+
+<span class="org-string">while ( cur &gt; 1 )</span>
+<span class="org-string">  do</span>
+<span class="org-string">   {</span>
+<span class="org-string">      fact := fact * cur ;</span>
+<span class="org-string">      fact := fact - fact / mod * mod ;</span>
+<span class="org-string">      cur := cur - 1</span>
+<span class="org-string">   } ;</span>
+
+<span class="org-string">cur := 0"</span>)))
+
+<span class="org-comment-delimiter">;; </span><span class="org-comment">cur 0</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">fact 531950728</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">mod 1000000007</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">val 10000</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">NIL</span>
+</pre>
+</div>
+
+<p>
+Therefore, my solution is actually not an interpreter but a compiler that
+transpiles While language code into Lisp forms. In other languages, writing a
+compiler arguably requires more code; but in Lisp, with its comprehensive
+run-time system, it becomes much easier.
+</p>
+
+<p>
+The full solution is shown below (or from this <a href="https://gist.github.com/macdavid313/4f1508de7280b36bf692313594d17bb2">Github Gist</a>):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp"><span class="org-comment-delimiter">;;;; </span><span class="org-comment">while.lisp</span>
+<span class="org-comment-delimiter">;;;; </span><span class="org-comment">A solution to Hackerrank's While Language problem --</span>
+<span class="org-comment-delimiter">;;;; </span><span class="org-comment">https://www.hackerrank.com/challenges/while-language-fp/problem</span>
+<span class="org-comment-delimiter">;;;; </span><span class="org-comment">Author: Tianyu Gu (macdavid313@gmail.com)</span>
+
+(<span class="org-keyword">in-package</span> <span class="org-builtin">#:cl-user</span>)
+(<span class="org-keyword">defpackage</span> <span class="org-builtin">#:while</span>
+  (<span class="org-builtin">:use</span> <span class="org-builtin">#:cl</span>)
+  (<span class="org-builtin">:nicknames</span> <span class="org-builtin">#:while-lang</span>)
+  (<span class="org-builtin">:export</span> <span class="org-builtin">#:gen-lisp-code</span> <span class="org-builtin">#:run-program</span>))
+(<span class="org-keyword">in-package</span> <span class="org-builtin">#:while</span>)
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">Part I. Lex</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">Variable, Numeral,</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">AOp: Plus, Minus, Mul, Div, Assign</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">BOp: And, Or,</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">ROp('&lt;' | '&gt;'): Gt, Lt,</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">Other Keywords: True, False, Lparen, Rparen, If, Then, Else,</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">--------------- Semicolon, While, Do, Lbracket, Rbracket</span>
+(<span class="org-keyword">defstruct</span> <span class="org-type">token</span> type val)
+
+(<span class="org-keyword">defmethod</span> <span class="org-function-name">print-object</span> ((obj token) stream)
+  (<span class="org-keyword">with-slots</span> (type val) obj
+    (<span class="org-keyword">if</span> val
+        (format stream <span class="org-string">"~A(~A)~%"</span> type val)
+      (format stream <span class="org-string">"~A~%"</span> type))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">make-var</span> (var)
+  (make-token <span class="org-builtin">:type</span> <span class="org-builtin">:var</span> <span class="org-builtin">:val</span> var))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">make-num</span> (num)
+  (make-token <span class="org-builtin">:type</span> <span class="org-builtin">:num</span> <span class="org-builtin">:val</span> num))
+
+(<span class="org-keyword">defconstant</span> <span class="org-variable-name">+keywords-table+</span>
+  (<span class="org-keyword">loop</span> with table = (make-hash-table <span class="org-builtin">:test</span> 'equal)
+        for (k . v) in '((#\+ . <span class="org-builtin">:plus</span>) (#\- . <span class="org-builtin">:minus</span>) (#\* . <span class="org-builtin">:mul</span>) (#\/ . <span class="org-builtin">:div</span>)
+                         (<span class="org-string">":="</span> . <span class="org-builtin">:assign</span>) (<span class="org-string">"and"</span> . <span class="org-builtin">:and</span>) (<span class="org-string">"or"</span> . <span class="org-builtin">:or</span>) (#\&gt; . <span class="org-builtin">:gt</span>) (#\&lt; . <span class="org-builtin">:lt</span>)
+                         (<span class="org-string">"true"</span> . <span class="org-builtin">:true</span>) (<span class="org-string">"false"</span> . <span class="org-builtin">:false</span>) (#\( . <span class="org-builtin">:lparen</span>) (#\) . <span class="org-builtin">:rparen</span>)
+                         (<span class="org-string">"if"</span> . <span class="org-builtin">:if</span>) (<span class="org-string">"then"</span> . <span class="org-builtin">:then</span>) (<span class="org-string">"else"</span> . <span class="org-builtin">:else</span>) (#\; . <span class="org-builtin">:semicolon</span>)
+                         (<span class="org-string">"while"</span> . <span class="org-builtin">:while</span>) (<span class="org-string">"do"</span> . <span class="org-builtin">:do</span>) (#\{ . <span class="org-builtin">:lbracket</span>) (#\} . <span class="org-builtin">:rbracket</span>))
+        do (setf (gethash k table) v)
+        finally (<span class="org-keyword">return</span> table)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">make-keyword</span> (part)
+  (make-token <span class="org-builtin">:type</span> (gethash part +keywords-table+)))
+
+(<span class="org-keyword">defstruct</span> <span class="org-type">token-stream</span> tokens len ptr)
+
+(<span class="org-keyword">defmethod</span> <span class="org-function-name">print-object</span> ((obj token-stream) stream)
+  (<span class="org-keyword">with-slots</span> (len ptr) obj
+    (format stream <span class="org-string">"&lt;~d tokens in total, ~d consumed, ~d left.&gt;~%"</span>
+            len ptr (- len ptr))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">next-token</span> (tokens)
+  (<span class="org-keyword">with-slots</span> (tokens len ptr) tokens
+    (<span class="org-keyword">unless</span> (= ptr len)
+      (<span class="org-keyword">let</span> ((rt (aref tokens ptr)))
+        (incf ptr)
+        rt))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">peek-token</span> (tokens)
+  (<span class="org-keyword">with-slots</span> (tokens len ptr) tokens
+    (<span class="org-keyword">unless</span> (= ptr len)
+      (aref tokens ptr))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">expect-token</span> (tokens expect)
+  (<span class="org-keyword">let</span> ((next (next-token tokens)))
+    (<span class="org-keyword">unless</span> (eq (token-type next) expect)
+      (<span class="org-warning">error</span> <span class="org-string">"Parsing error: unexpected token ~A"</span> next))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">token-stream-empty-p</span> (tokens)
+  (<span class="org-keyword">with-slots</span> (len ptr) tokens
+    (= len ptr)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">lex-by-pred</span> (in pred)
+  (<span class="org-keyword">declare</span> (type stream in))
+  (<span class="org-keyword">with-output-to-string</span> (o)
+    (<span class="org-keyword">loop</span> for c = (peek-char nil in nil nil)
+          while (and c (funcall pred c))
+          do (write-char (read-char in) o))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">lex-str</span> (in)
+  (<span class="org-keyword">declare</span> (type stream in))
+  (lex-by-pred in (<span class="org-keyword">lambda</span> (c) (char&lt;= #\a c #\z))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">lex-num</span> (in)
+  (<span class="org-keyword">declare</span> (type stream in))
+  (<span class="org-keyword">let</span> ((str (lex-by-pred in (<span class="org-keyword">lambda</span> (c) (char&lt;= #\0 c #\9)))))
+    (parse-integer str <span class="org-builtin">:junk-allowed</span> nil)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">lex</span> (in)
+  (<span class="org-keyword">declare</span> (type stream in))
+  (<span class="org-keyword">let</span> ((tokens (make-array 0 <span class="org-builtin">:element-type</span> 'token <span class="org-builtin">:adjustable</span> t <span class="org-builtin">:fill-pointer</span> 0)))
+    (<span class="org-keyword">loop</span> for c = (peek-char t in nil nil)
+          while c do (<span class="org-keyword">cond</span> (<span class="org-comment-delimiter">;; </span><span class="org-comment">keywords</span>
+                            (find c #(#\+ #\- #\* #\/ #\&gt; #\&lt; #\( #\) #\; #\{ #\}) <span class="org-builtin">:test</span> 'char=)
+                            (vector-push-extend (make-keyword (read-char in)) tokens))
+                           (<span class="org-comment-delimiter">;; </span><span class="org-comment">Assign</span>
+                            (char= c #\:)
+                            (read-char in) <span class="org-comment-delimiter">;; </span><span class="org-comment">#\:</span>
+                            (read-char in) <span class="org-comment-delimiter">;; </span><span class="org-comment">#\=</span>
+                            (vector-push-extend (make-keyword <span class="org-string">":="</span>) tokens))
+                           (<span class="org-comment-delimiter">;; </span><span class="org-comment">a var or a keyword</span>
+                            (char&lt;= #\a c #\z)
+                            (<span class="org-keyword">let</span> ((str (lex-str in)))
+                              (<span class="org-keyword">if</span> (find str #(<span class="org-string">"and"</span> <span class="org-string">"or"</span> <span class="org-string">"true"</span> <span class="org-string">"false"</span> <span class="org-string">"if"</span> <span class="org-string">"then"</span> <span class="org-string">"else"</span> <span class="org-string">"while"</span> <span class="org-string">"do"</span>) <span class="org-builtin">:test</span> 'string=)
+                                  (vector-push-extend (make-keyword str) tokens)
+                                (vector-push-extend (make-var str) tokens))))
+                           (<span class="org-comment-delimiter">;; </span><span class="org-comment">a numeral</span>
+                            (char&lt;= #\0 c #\z)
+                            (vector-push-extend (make-num (lex-num in)) tokens)))
+          finally (<span class="org-keyword">return</span> (make-token-stream <span class="org-builtin">:tokens</span> tokens <span class="org-builtin">:len</span> (length tokens) <span class="org-builtin">:ptr</span> 0)))))
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">Part II. Parse (recursive descent)</span>
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse</span> (tokens)
+  (<span class="org-keyword">let</span> (stmts)
+    (<span class="org-keyword">tagbody</span>
+     start
+     (push (parse-statement tokens) stmts)
+     (<span class="org-keyword">if</span> (and (peek-token tokens)
+              (eq <span class="org-builtin">:semicolon</span> (token-type (peek-token tokens))))
+         (<span class="org-keyword">progn</span>
+           (next-token tokens)
+           (<span class="org-keyword">go</span> start))
+       (<span class="org-keyword">return-from</span> parse (nreverse stmts))))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse-statement</span> (tokens)
+  (<span class="org-keyword">let</span> ((token (peek-token tokens)))
+    (<span class="org-keyword">case</span> (token-type token)
+      (<span class="org-builtin">:var</span> (parse-assign tokens))
+      (<span class="org-builtin">:if</span> (next-token tokens)
+          (parse-if tokens))
+      (<span class="org-builtin">:while</span> (next-token tokens)
+       (parse-while tokens))
+      (t (<span class="org-warning">error</span> <span class="org-string">"Parsing error."</span>)))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse-assign</span> (tokens)
+  (<span class="org-keyword">let</span> (var val)
+    (setq var (intern (token-val (next-token tokens)) <span class="org-builtin">:while</span>))
+    (expect-token tokens <span class="org-builtin">:assign</span>)
+    (setq val (parse-aexpr tokens))
+    `(setf ,var ,val)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse-aexpr</span> (tokens)
+  (<span class="org-keyword">labels</span> ((parse-factor (tokens)
+             (<span class="org-keyword">let</span> ((token (next-token tokens)))
+               (<span class="org-keyword">case</span> (token-type token)
+                 (<span class="org-builtin">:var</span> (intern (token-val token) <span class="org-builtin">:while</span>))
+                 (<span class="org-builtin">:num</span> (token-val token))
+                 (<span class="org-builtin">:lparen</span> (<span class="org-keyword">let</span> ((arith (parse-aexpr tokens)))
+                            (expect-token tokens <span class="org-builtin">:rparen</span>)
+                            arith))
+                 (t (<span class="org-warning">error</span> <span class="org-string">"Parsing error"</span>)))))
+           (parse-term (tokens)
+             (<span class="org-keyword">let</span> ((left (parse-factor tokens)))
+               (<span class="org-keyword">tagbody</span>
+                start
+                (<span class="org-keyword">cond</span> ((and (peek-token tokens)
+                            (eq <span class="org-builtin">:mul</span> (token-type (peek-token tokens))))
+                       (next-token tokens)
+                       (setq left `(* ,left ,(parse-factor tokens)))
+                       (<span class="org-keyword">go</span> start))
+                      ((and (peek-token tokens)
+                            (eq <span class="org-builtin">:div</span> (token-type (peek-token tokens))))
+                       (next-token tokens)
+                       (setq left `(floor (/ ,left ,(parse-factor tokens))))
+                       (<span class="org-keyword">go</span> start))
+                      (t (<span class="org-keyword">return-from</span> parse-term left)))))))
+    (<span class="org-keyword">let</span> ((left (parse-term tokens)))
+      (<span class="org-keyword">tagbody</span>
+       start
+       (<span class="org-keyword">cond</span> ((and (peek-token tokens)
+                   (eq <span class="org-builtin">:plus</span> (token-type (peek-token tokens))))
+              (next-token tokens)
+              (setq left `(+ ,left ,(parse-term tokens)))
+              (<span class="org-keyword">go</span> start))
+             ((and (peek-token tokens)
+                   (eq <span class="org-builtin">:minus</span> (token-type (peek-token tokens))))
+              (next-token tokens)
+              (setq left `(- ,left ,(parse-term tokens)))
+              (<span class="org-keyword">go</span> start))
+             (t (<span class="org-keyword">return-from</span> parse-aexpr left)))))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse-if</span> (tokens)
+  (<span class="org-keyword">let</span> (test then else)
+    (setq test (parse-bexpr tokens))
+    (expect-token tokens <span class="org-builtin">:then</span>)
+    (expect-token tokens <span class="org-builtin">:lbracket</span>)
+    (setq then (parse tokens))
+    (expect-token tokens <span class="org-builtin">:rbracket</span>)
+    (expect-token tokens <span class="org-builtin">:else</span>)
+    (expect-token tokens <span class="org-builtin">:lbracket</span>)
+    (setq else (parse tokens))
+    (expect-token tokens <span class="org-builtin">:rbracket</span>)
+    `(<span class="org-keyword">if</span> ,test
+         (<span class="org-keyword">progn</span> ,@then)
+       (<span class="org-keyword">progn</span> ,@else))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse-while</span> (tokens)
+  (<span class="org-keyword">let</span> (test body)
+    (setq test (parse-bexpr tokens))
+    (expect-token tokens <span class="org-builtin">:do</span>)
+    (expect-token tokens <span class="org-builtin">:lbracket</span>)
+    (setq body (parse tokens))
+    (expect-token tokens <span class="org-builtin">:rbracket</span>)
+    `(<span class="org-keyword">do</span> ()
+         ((not ,test))
+       ,@body)))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">parse-bexpr</span> (tokens)
+  (<span class="org-keyword">labels</span> ((parse-bexpr/1 ()
+             (<span class="org-keyword">case</span> (token-type (peek-token tokens))
+               (<span class="org-builtin">:true</span> (next-token tokens) t)
+               (<span class="org-builtin">:false</span> (next-token tokens) nil)
+               (<span class="org-builtin">:lparen</span> (next-token tokens)
+                (<span class="org-keyword">let</span> ((bexpr (parse-bexpr tokens)))
+                  (expect-token tokens <span class="org-builtin">:rparen</span>)
+                  bexpr))
+               (t (<span class="org-keyword">let</span> ((left (parse-aexpr tokens)))
+                    (<span class="org-keyword">case</span> (token-type (next-token tokens))
+                      (<span class="org-builtin">:gt</span> `(&gt; ,left ,(parse-aexpr tokens)))
+                      (<span class="org-builtin">:lt</span> `(&lt; ,left ,(parse-aexpr tokens)))
+                      (t (<span class="org-warning">error</span> <span class="org-string">"Parsing error"</span>))))))))
+    (<span class="org-keyword">let</span> ((left (parse-bexpr/1)))
+      (<span class="org-keyword">tagbody</span>
+       start
+       (<span class="org-keyword">case</span> (token-type (peek-token tokens))
+         (<span class="org-builtin">:and</span> (next-token tokens)
+          (setq left `(and ,left ,(parse-bexpr/1)))
+          (<span class="org-keyword">go</span> start))
+         (<span class="org-builtin">:or</span> (next-token tokens)
+          (setq left `(or ,left ,(parse-bexpr/1)))
+          (<span class="org-keyword">go</span> start))
+         (t (<span class="org-keyword">return-from</span> parse-bexpr left)))))))
+
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">Part III: Compile (transpile, actually)</span>
+(<span class="org-keyword">defun</span> <span class="org-function-name">generate-symbol-table</span> (stmts)
+  (<span class="org-keyword">when</span> stmts
+    (<span class="org-keyword">loop</span> with syms = (list)
+          for stmt in stmts
+          do (<span class="org-keyword">case</span> (car stmt)
+               (setf (pushnew (second stmt) syms <span class="org-builtin">:test</span> 'eq))
+               (<span class="org-keyword">do</span> (<span class="org-keyword">let</span> ((res (generate-symbol-table (cdddr stmt))))
+                     (<span class="org-keyword">when</span> res
+                       (setf syms (concatenate 'list syms res)))))
+               (<span class="org-keyword">if</span> (<span class="org-keyword">let</span> ((res1 (generate-symbol-table (cdr (third stmt))))
+                         (res2 (generate-symbol-table (cdr (fourth stmt)))))
+                     (setf syms (concatenate 'list syms res1 res2)))))
+          finally (<span class="org-keyword">return</span> (sort (delete-duplicates syms <span class="org-builtin">:test</span> 'eq)
+                                'string&lt; <span class="org-builtin">:key</span> 'symbol-name)))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">gen-lisp-code</span> (program)
+  (<span class="org-keyword">let*</span> ((stmts (parse (<span class="org-keyword">with-input-from-string</span> (in program)
+                         (lex in))))
+         (syms (generate-symbol-table stmts)))
+    `(<span class="org-keyword">lambda</span> ()
+       (<span class="org-keyword">let*</span> ,(mapcar (<span class="org-keyword">lambda</span> (sym) `(,sym 0)) syms)
+         (<span class="org-keyword">declare</span> (optimize speed (space 0) (safety 1))
+                  (type (integer 0 #.(* 2 (expt 10 18))) ,@syms))
+         ,@stmts
+         ,@(mapcar (<span class="org-keyword">lambda</span> (sym)
+                     `(format t <span class="org-string">"~a ~d~%"</span> ,(symbol-name sym) ,sym))
+                   syms)))))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">run-program</span> (program)
+  (<span class="org-keyword">let</span> ((fn (compile 'nil (gen-lisp-code program))))
+    (funcall fn)))
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">Entry point</span>
+(<span class="org-keyword">in-package</span> <span class="org-builtin">#:cl-user</span>)
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">main</span> ()
+  (while:run-program
+   (<span class="org-keyword">with-output-to-string</span> (o)
+     (<span class="org-keyword">loop</span> for line = (read-line t nil nil)
+           while line do (write-line line o)))))
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">uncomment this line if you wanto to submit it to Hackerrank</span>
+<span class="org-comment-delimiter">;; </span><span class="org-comment">(main)</span>
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">test case</span>
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-0*</span>
+  <span class="org-string">"base := 2 ;</span>
+<span class="org-string">power := 100 ;</span>
+<span class="org-string">prime := 1000000007 ;</span>
+
+<span class="org-string">res := 1 ;</span>
+
+<span class="org-string">while ( power &gt; 0 ) do {</span>
+<span class="org-string">        parity := power - ( power / 2 * 2 ) ;</span>
+<span class="org-string">        if ( power - power / 2 * 2 &gt; 0 ) then</span>
+<span class="org-string">        {</span>
+<span class="org-string">            res := res * base ;</span>
+<span class="org-string">            res := res - res / prime * prime</span>
+<span class="org-string">        }</span>
+<span class="org-string">        else</span>
+<span class="org-string">        {</span>
+<span class="org-string">            res := res</span>
+<span class="org-string">        } ;</span>
+
+<span class="org-string">    base := base * base ;</span>
+<span class="org-string">    base := base - base / prime * prime ;</span>
+<span class="org-string">    power :=  power / 2</span>
+<span class="org-string">}"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-1*</span>
+  <span class="org-string">"fact := 1 ;</span>
+<span class="org-string">val := 10000 ;</span>
+<span class="org-string">cur := val ;</span>
+<span class="org-string">mod := 1000000007 ;</span>
+
+<span class="org-string">while ( cur &gt; 1 )</span>
+<span class="org-string">  do</span>
+<span class="org-string">   {</span>
+<span class="org-string">      fact := fact * cur ;</span>
+<span class="org-string">      fact := fact - fact / mod * mod ;</span>
+<span class="org-string">      cur := cur - 1</span>
+<span class="org-string">   } ;</span>
+
+<span class="org-string">cur := 0"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-2*</span>
+  <span class="org-string">"a := 267815000 ;</span>
+<span class="org-string">b := 556456000 ;</span>
+<span class="org-string">while ( b &gt; 0 ) do</span>
+<span class="org-string"> {</span>
+<span class="org-string">        t := b ;</span>
+<span class="org-string">    b := a - ( a / b ) * b ;</span>
+<span class="org-string">        a := t</span>
+<span class="org-string">} ;</span>
+
+<span class="org-string">res  := a"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-3*</span>
+  <span class="org-string">"a := 10 ;</span>
+<span class="org-string">b := 100 ;</span>
+<span class="org-string">c := 1000 ;</span>
+
+<span class="org-string">if ( a &gt; b and a &gt; c ) then {</span>
+<span class="org-string">    largest := a</span>
+<span class="org-string">}</span>
+<span class="org-string">else {</span>
+<span class="org-string">    if ( b &gt; a and b &gt; c ) then {</span>
+<span class="org-string">        largest := b</span>
+<span class="org-string">    }</span>
+<span class="org-string">    else {</span>
+<span class="org-string">        largest := c</span>
+<span class="org-string">    }</span>
+<span class="org-string"> }</span>
+<span class="org-string">;</span>
+
+<span class="org-string">if ( a &gt; b and a &lt; c ) then {</span>
+<span class="org-string">    middle := a</span>
+<span class="org-string">}</span>
+<span class="org-string">else {</span>
+<span class="org-string">    if ( b &gt; a and b &lt; c ) then {</span>
+<span class="org-string">        middle := b</span>
+<span class="org-string">    }</span>
+<span class="org-string">    else {</span>
+<span class="org-string">        middle := c</span>
+<span class="org-string">    }</span>
+<span class="org-string">} ;</span>
+
+<span class="org-string">if ( a &lt; b and a &lt; c ) then {</span>
+<span class="org-string">    smallest := a</span>
+<span class="org-string">}</span>
+<span class="org-string">else {</span>
+<span class="org-string">    if ( b &lt; a and b &lt; c ) then {</span>
+<span class="org-string">        smallest := b</span>
+<span class="org-string">    }</span>
+<span class="org-string">    else {</span>
+<span class="org-string">        smallest := c</span>
+<span class="org-string">    }</span>
+<span class="org-string">}"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-4*</span>
+  <span class="org-string">"sum := 0 ;</span>
+<span class="org-string">cur := 0 ;</span>
+<span class="org-string">while ( cur &lt; 10000 ) do</span>
+<span class="org-string">{</span>
+<span class="org-string">    cur := cur + 1 ;</span>
+<span class="org-string">    sum := sum + cur</span>
+<span class="org-string">} ;</span>
+
+<span class="org-string">p := 1000000007 ;</span>
+<span class="org-string">cur := 0 ;</span>
+<span class="org-string">prod := 1 ;</span>
+
+<span class="org-string">while ( cur &lt; 10000 ) do</span>
+<span class="org-string">{</span>
+<span class="org-string">    cur := cur + 1 ;</span>
+<span class="org-string">    prod := prod * cur ;</span>
+<span class="org-string">    prod := prod - prod / p * p</span>
+<span class="org-string">}"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-5*</span>
+  <span class="org-string">"a := 1000 ;</span>
+<span class="org-string">b := 2000 ;</span>
+
+<span class="org-string">c := b ;</span>
+<span class="org-string">b := a ;</span>
+<span class="org-string">a := c ;</span>
+
+<span class="org-string">c := 0"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-6*</span>
+  <span class="org-string">"a := 10 ;</span>
+<span class="org-string">b := 100 ;</span>
+
+<span class="org-string">if ( a &lt; b ) then</span>
+<span class="org-string">    {</span>
+<span class="org-string">        min := a ;</span>
+<span class="org-string">        max := b</span>
+<span class="org-string">    }</span>
+<span class="org-string">else {</span>
+<span class="org-string">    min := b ;</span>
+<span class="org-string">    max := a</span>
+<span class="org-string">    }"</span>)
+
+(<span class="org-keyword">defvar</span> <span class="org-variable-name">*test-7*</span>
+  <span class="org-string">"i := 0 ;</span>
+
+<span class="org-string">oddsum := 0 ;</span>
+<span class="org-string">evensum := 0 ;</span>
+
+<span class="org-string">while ( i &lt; 100 ) do</span>
+<span class="org-string">{</span>
+<span class="org-string">    j := 0 ;</span>
+
+<span class="org-string">    while ( j &lt; i ) do {</span>
+<span class="org-string">        if ( j - j / 2 * 2 &gt; 0 ) then {</span>
+<span class="org-string">            oddsum := oddsum + j</span>
+<span class="org-string">        }</span>
+<span class="org-string">        else {</span>
+<span class="org-string">            evensum := evensum + j</span>
+<span class="org-string">        } ;</span>
+<span class="org-string">        j := j + 1</span>
+<span class="org-string">    } ;</span>
+
+<span class="org-string">    i := i + 1</span>
+<span class="org-string">}"</span>)
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr/>
+<footer>
+  <div class="generated">
+    Created with <a href="https://www.gnu.org/software/emacs/">Emacs</a> 29.3 (<a href="https://orgmode.org">Org</a> mode 9.6.15) on <a href="https://www.debian.org/">Debian</a> <a href="https://www.gnu.org">GNU</a>/<a href="https://www.kernel.org/">Linux</a>
+  </div>
+</footer>
+</div>
+</body>
+</html>

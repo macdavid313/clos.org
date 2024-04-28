@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Deliver Your Software By Producing a Single Fasl File</title>
+<meta name="generator" content="Org Mode" />
+
+<meta name="author" content="Tianyu Gu"/>
+<link rel="shortcut icon" href="/static/img/favicon.ico">
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="/static/css/modus-operandi.css" type="text/css"/>
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"  href="/static/css/modus-vivendi.css"  type="text/css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div id="org-div-home-and-up">
+  <a href="/posts/index.html">Blog</a>
+  <a href="/">Home</a>
+</div>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Deliver Your Software By Producing a Single Fasl File</h1>
+</header><p>
+From the very beginning, just like other 'rookies', I'm so confused why a <i>Hello
+World</i> executable file is so big in Common Lisp. Among all the implementations,
+of course you can argue that ECL can produce a small one, however, except in
+ECL, that binary file's size is usually more than 30 MBs and even up to 50 MBs
+in the case of SBCL (on a 64bit platform).
+</p>
+
+<p>
+It didn't take too long till I realized it's not fair to argue about that. While
+C language already has GCC 'laying' down on the operating system, Common Lisp's
+binary contains all the components like the debuger and even a full-futured
+compiler. The run time is huge. In this <a href="http://fare.livejournal.com/184127.html">article</a>, <i>François-René Rideau</i> had
+given some points about how to avoid producing a lot of binaries which could be
+a serious space issue. He suggestes that one binary can provide several entries,
+and for each entry, one specific entry function will be invoked. This actually
+doesn’t solve the whole problem but could be taken as a solution that just
+works.
+</p>
+
+<p>
+However, that kind of feature was provided with his Common Lisp building tool
+<i>cl-launch</i>. One can certainly achieve that without <i>cl-launch</i>, for example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp">(<span class="org-keyword">defun</span> <span class="org-function-name">main</span> (args)
+  (<span class="org-keyword">when</span> (predicate-1 (first args))
+    (<span class="org-keyword">do-something-case-1</span>))
+  (<span class="org-keyword">when</span> (predicate-2 (first args))
+    (<span class="org-keyword">do-something-case-2</span>))
+  <span class="org-comment-delimiter">;; </span><span class="org-comment">....... do more things ......</span>
+  )
+</pre>
+</div>
+
+<p>
+But this looks quite ugly. You mixed different apps or libs within one top-level
+<code>main</code> function, that's odd, isn't it?
+</p>
+
+<p>
+Therefore, I suggest using FASL files to deliver your software. Compared to the
+approach of using a binary, the size of FASL files are usually much smaller, but
+the drawback is obviously clients will have to install a Lisp run time to use
+your software. As all I know so far, engineers from <a href="http://franz.com/">Franz Inc.</a> take this
+approach to deliver their products, for example, the <a href="http://franz.com/agraph/support/documentation/current/index.html">AllegroGraph</a>.
+</p>
+
+<p>
+Here is a piece of code that shows how to combine several fasls into a single
+file. It delivers <code>cl-ppcre</code> as a library. If you think it's too painful without
+using ASDF, just go check out <code>compile-bundle-op</code> and
+<code>monolithic-compile-bundle-op</code> from the <a href="https://common-lisp.net/project/asdf/asdf.html#Operations">documentation</a> page, that will help.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lisp"><span class="org-comment-delimiter">;;;; </span><span class="org-comment">load.lisp</span>
+<span class="org-comment-delimiter">;;;; </span><span class="org-comment">A example shows the idea how to combine several fasls together</span>
+<span class="org-comment-delimiter">;;;; </span><span class="org-comment">so that you can delivery your code as a library</span>
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">suppose now we have a directory whose structure looks like this:</span>
+<span class="org-comment-delimiter">#|</span>
+<span class="org-comment">&#9500;&#9472;&#9472; cl-ppcre-2.0.11</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; CHANGELOG</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; README.md</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; api.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; charmap.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; charset.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; chartest.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; cl-ppcre-unicode</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; packages.lisp</span>
+<span class="org-comment">&#9474;   &#9474;   &#9492;&#9472;&#9472; resolver.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; cl-ppcre-unicode.asd</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; cl-ppcre.asd</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; closures.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; convert.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; doc</span>
+<span class="org-comment">&#9474;   &#9474;   &#9492;&#9472;&#9472; index.html</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; errors.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; lexer.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; optimize.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; packages.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; parser.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; regex-class-util.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; regex-class.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; repetition-closures.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; scanner.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; specials.lisp</span>
+<span class="org-comment">&#9474;   &#9500;&#9472;&#9472; test</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; packages.lisp</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; perl-tests.lisp</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; perltest.pl</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; perltestdata</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; perltestinput</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; simple</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; tests.lisp</span>
+<span class="org-comment">&#9474;   &#9474;   &#9500;&#9472;&#9472; unicode-tests.lisp</span>
+<span class="org-comment">&#9474;   &#9474;   &#9492;&#9472;&#9472; unicodetestdata</span>
+<span class="org-comment">&#9474;   &#9492;&#9472;&#9472; util.lisp</span>
+<span class="org-comment">&#9492;&#9472;&#9472; load.lisp</span>
+<span class="org-comment-delimiter">|#</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">we first sepcify the order when compiling file, than write all the fasls into a whole single one.</span>
+(<span class="org-keyword">in-package</span> <span class="org-builtin">#:cl-user</span>)
+
+(<span class="org-keyword">defparameter</span> <span class="org-variable-name">*cl-ppcre-files*</span>
+  '(<span class="org-string">"packages"</span> <span class="org-string">"specials"</span> <span class="org-string">"util"</span> <span class="org-string">"errors"</span> <span class="org-string">"charset"</span>
+    <span class="org-string">"charmap"</span> <span class="org-string">"chartest"</span> <span class="org-string">"lexer"</span> <span class="org-string">"parser"</span> <span class="org-string">"regex-class"</span>
+    <span class="org-string">"regex-class-util"</span> <span class="org-string">"convert"</span> <span class="org-string">"optimize"</span> <span class="org-string">"closures"</span>
+    <span class="org-string">"repetition-closures"</span> <span class="org-string">"scanner"</span> <span class="org-string">"api"</span>))
+
+(<span class="org-keyword">defun</span> <span class="org-function-name">copy-fasls-to</span> (files destination <span class="org-type">&amp;optional</span> (prefix <span class="org-string">""</span>))
+  (<span class="org-keyword">let</span> ((buffer (make-array 4096 <span class="org-builtin">:element-type</span> '(unsigned-byte 8))))
+    (<span class="org-keyword">with-open-file</span> (out destination <span class="org-builtin">:direction</span> <span class="org-builtin">:output</span> <span class="org-builtin">:element-type</span> '(unsigned-byte 8)
+                         <span class="org-builtin">:if-does-not-exist</span> <span class="org-builtin">:create</span> <span class="org-builtin">:if-exists</span> <span class="org-builtin">:supersede</span>)
+      (<span class="org-keyword">dolist</span> (file files)
+        (<span class="org-keyword">let</span> ((filename (concatenate 'string prefix file <span class="org-string">".lisp"</span>))
+              (fasl (concatenate 'string prefix file <span class="org-string">".fasl"</span>)))
+          (compile-file filename)
+          (load fasl)
+          (<span class="org-keyword">with-open-file</span> (in fasl <span class="org-builtin">:element-type</span> '(unsigned-byte 8))
+            (<span class="org-keyword">loop</span> for count = (read-sequence buffer in)
+               while (not (zerop count)) do (write-sequence buffer out <span class="org-builtin">:end</span> count))))))))
+
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">after loaded, just issue</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">(copy-fasls-to *cl-ppcre-files* "/tmp/fasl/cl-ppcre.fasl" "/tmp/fasl/cl-ppcre-2.0.11/") in the repl</span>
+<span class="org-comment-delimiter">;;; </span><span class="org-comment">it will produce a single `</span><span class="org-comment"><span class="org-constant">cl-ppcre.fasl</span></span><span class="org-comment">' file and you can load whenever you want</span>
+</pre>
+</div>
+</div>
+<div id="postamble" class="status">
+<hr/>
+<footer>
+  <div class="generated">
+    Created with <a href="https://www.gnu.org/software/emacs/">Emacs</a> 29.3 (<a href="https://orgmode.org">Org</a> mode 9.6.15) on <a href="https://www.debian.org/">Debian</a> <a href="https://www.gnu.org">GNU</a>/<a href="https://www.kernel.org/">Linux</a>
+  </div>
+</footer>
+</div>
+</body>
+</html>

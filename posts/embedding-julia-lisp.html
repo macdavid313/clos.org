@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Embedding Julia in Lisp</title>
+<meta name="generator" content="Org Mode" />
+
+<meta name="author" content="Tianyu Gu"/>
+<link rel="shortcut icon" href="/static/img/favicon.ico">
+<link rel="stylesheet" href="/static/css/style.css" type="text/css" />
+<link rel="stylesheet" media="(prefers-color-scheme: light)" href="/static/css/modus-operandi.css" type="text/css"/>
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"  href="/static/css/modus-vivendi.css"  type="text/css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+
+<div id="org-div-home-and-up">
+  <a href="/posts/index.html">Blog</a>
+  <a href="/">Home</a>
+</div>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Embedding Julia in Lisp</h1>
+</header><p>
+Julia is a high-level dynamic programming language designed to address the needs
+of high-performance numerical analysis and computational science while also
+being effective for general-purpose programming, web use or as a specification
+language<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>. I like its Lisp-like macros and <a href="https://en.wikipedia.org/wiki/Multiple_dispatch">multiple dispatch</a> strategy.
+After all, it's from MIT, where LISP happens. Its performance, according to this
+<a href="http://julialang.org/images/julia-dynamic-2012-tr.pdf">paper</a>, is often within a factor of two relative to fully optimized C code (and
+thus often an order of magnitude faster than Python or R)<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>. Besides macros
+(or other meta-programming facilities), multiple dispatch and high performance.
+Julia can call Python (by using PyCall<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup> package) and C functions (without
+wrappers). This support may be very important for a new community programming
+language.
+</p>
+
+<p>
+Anyway, Julia looks very promising. Since most Lisp has a bad (and somewhat
+unfair at all) reputation for performance, I'm thinking about one can embed
+Julia into Lisp systems and make it like an agent for numerical computation
+tasks. Common Lisp community already has a package called <i>burgled-batteries</i>,
+by using which people can calling Python 2.7<sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup> functions, massive libraries
+and functionalities become available for Common Lisp, therefore.
+</p>
+
+<p>
+But after I tried to embed Julia in SBCL, unfortunately, memory errors took
+place. Here is a session on Ubuntu 16.04:
+</p>
+
+<pre class="example">
+david@ubuntu-512mb-fra1-01:~/julia$ sbcl --load ~/quicklisp/setup.lisp
+This is SBCL 1.3.15.10-1c20666, an implementation of ANSI Common Lisp.
+More information about SBCL is available at &lt;http://www.sbcl.org/&gt;.
+
+SBCL is free software, provided as is, with absolutely no warranty.
+It is mostly in the public domain; some portions are provided under
+BSD-style licenses.  See the CREDITS and COPYING files in the
+distribution for more information.
+&gt; (ql:quickload :cffi)
+To load "cffi":
+  Load 1 ASDF system:
+    cffi
+; Loading "cffi"
+.
+(:CFFI)
+&gt; (cffi:load-foreign-library "/home/david/julia/lib/libjulia.so")
+
+#&lt;CFFI:FOREIGN-LIBRARY LIBJULIA.SO-483 "libjulia.so"&gt;
+&gt; (cffi:defcfun ("jl_init" jl-init) :void (julia-home-dir :string))
+
+JL-INIT
+&gt; (jl-init "/home/david/julia/lib")
+
+&gt; (cffi:defcfun ("jl_eval_string" jl-eval-string) :pointer (str :string))
+fatal: error thrown and no exception handler available.
+ReadOnlyMemoryError()
+unknown function (ip: 0x21ba66dd)
+unknown function (ip: 0x21b8a105)
+unknown function (ip: 0x21ba62c6)
+unknown function (ip: 0x21ba6046)
+unknown function (ip: 0x21ba5be1)
+unknown function (ip: 0x21ba58af)
+unknown function (ip: 0x21ba55bc)
+unknown function (ip: 0x21ba5488)
+unknown function (ip: 0x21b320e2)
+unknown function (ip: 0x21b69702)
+unknown function (ip: 0x21b3aead)
+unknown function (ip: 0x21b3a3a7)
+unknown function (ip: 0x21b3a3a7)
+unknown function (ip: 0x21b39621)
+unknown function (ip: 0x21dd95f3)
+unknown function (ip: 0x22245a59)
+unknown function (ip: 0x21e138e9)
+unknown function (ip: 0x21e7b711)
+unknown function (ip: 0x21e13505)
+unknown function (ip: 0x21e12dac)
+unknown function (ip: 0x2253592a)
+unknown function (ip: 0x2253563e)
+call_into_lisp at sbcl (unknown line)
+</pre>
+
+<p>
+This process failed on CCL as well, but ECL survived so far, which makes this
+bug more confusing. While I think it's an internal error in Lisp
+implementations, @开源哥 suggested it might come from Julia side.
+</p>
+
+<p>
+However, on the other hand, things work pretty well on Chez Scheme:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-scheme">(<span class="org-keyword">define</span> <span class="org-function-name">*julia-root-path*</span> <span class="org-string">"/home/david/julia/"</span>)
+
+(<span class="org-keyword">define</span> <span class="org-function-name">*julia-lib-path*</span>
+  (string-append *julia-root-path* <span class="org-string">"lib/"</span>))
+
+(<span class="org-keyword">define</span> <span class="org-function-name">*libjulia*</span>
+  (string-append *julia-lib-path* <span class="org-string">"libjulia.so"</span>))
+
+(<span class="org-keyword">define</span> <span class="org-function-name">jl-init</span>
+  (foreign-procedure <span class="org-string">"jl_init"</span> (string) void*))
+
+(<span class="org-keyword">define</span> <span class="org-function-name">jl-eval-string</span>
+  (foreign-procedure <span class="org-string">"jl_eval_string"</span> (string) void*))
+
+(<span class="org-keyword">define</span> <span class="org-function-name">jl-unbox-float64</span>
+  (foreign-procedure <span class="org-string">"jl_unbox_float64"</span> (void*) double-float))
+
+(load-shared-object *libjulia*)
+(jl-init *julia-lib-path*)
+
+(jl-eval-string <span class="org-string">"sqrt(2.0)"</span>)
+<span class="org-comment-delimiter">;; </span><span class="org-comment">=&gt; 4694870240</span>
+
+(jl-unbox-float64 (jl-eval-string <span class="org-string">"sqrt(2.0)"</span>))
+<span class="org-comment-delimiter">;; </span><span class="org-comment">=&gt; 1.4142135623730951</span>
+</pre>
+</div>
+
+<p>
+On Julia’s documentation page, there’s one [chapter](<a href="https://docs.julialang.org/en/v1/manual/embedding/">https://docs.julialang.org/en/v1/manual/embedding/</a>) talking about embedding specifically, where these topics are outlined:
+</p>
+
+<ol class="org-ol">
+<li>Loading dynamic library and initializing Julia runtime</li>
+<li>Converting Types</li>
+<li>Calling Julia Functions</li>
+<li>Memory Management and GC</li>
+<li>Arrays</li>
+<li>Exceptions</li>
+</ol>
+
+<p>
+You will find it will be easier to embed Julia than e.g. CPython into Lisp or
+any other system, especially for the memory management part, where CPython uses
+`reference counting` which is somewhat painful for maintaining. If one can solve
+the problem shown before on SBCL and CCL, Common Lisp community may have another
+package calling Julia functions in the future. So if anyone knows how to deal
+with it, please tell me or just fix it and implement the package “in one
+breath”.
+</p>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+<a href="https://en.wikipedia.org/wiki/Julia_(programming_language)">Wikipedia, Julia (programming language)</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Jeff Bezanson, Stefan Karpinski, Viral B. Shah, Alan Edelman, Julia: A
+Fast Dynamic Language for Technical Computing, 2012.
+<a href="https://arxiv.org/abs/1209.5145">https://arxiv.org/abs/1209.5145</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+<a href="https://medium.com/@acidflask/smoothing-data-with-julia-s-generated-functions-c80e240e05f3#.615wk3dle">"Smoothing data with Julia's @generated functions"</a>. 5 November 2015.
+Retrieved 9 December 2015. “Julia's generated functions are closely related to
+the multistaged programming (MSP) paradigm popularized by Taha and Sheard, which
+generalizes the compile time/run time stages of program execution by allowing
+for multiple stages of delayed code execution.”
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Note: Python 3.x might be available as well, please see this <a href="https://github.com/pinterface/burgled-batteries/pull/8">pull request</a>
+on Github.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<hr/>
+<footer>
+  <div class="generated">
+    Created with <a href="https://www.gnu.org/software/emacs/">Emacs</a> 29.3 (<a href="https://orgmode.org">Org</a> mode 9.6.15) on <a href="https://www.debian.org/">Debian</a> <a href="https://www.gnu.org">GNU</a>/<a href="https://www.kernel.org/">Linux</a>
+  </div>
+</footer>
+</div>
+</body>
+</html>
