@@ -1,13 +1,12 @@
 /* -*- tab-width: 4 -*- */
 /* Sans-serif font */
-@import url("https://fonts.googleapis.com/css2?family=Ysabeau+Office:ital,wght@0,1..1000;1,1..1000&display=swap");
-
-/* 中文字体 */
-/* https://github.com/CMBill/lxgw-wenkai-screen-web */
-@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.css");
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 
 /* Monospace font */
-@import url("https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+/* 中文字体 */
+@import url("https://cdn.jsdelivr.net/npm/@ibm/plex-sans-sc@1.1.0/css/ibm-plex-sans-sc-default.min.css")
 
 root {
   --color-background: white;
@@ -48,7 +47,7 @@ body {
   max-width: 59rem;
   color: var(--color-text);
   background: var(--color-background);
-  font-family: "Ysabeau Office", "LXGW WenKai Screen", sans-serif;
+  font-family: "IBM Plex Sans", "IBM Plex Sans SC", sans-serif;
 }
 
 p {
@@ -82,7 +81,7 @@ p {
 }
 
 #org-div-home-and-up a {
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 1.4em;
   margin: 0 0.5ex;
   padding: 0.2ex 0.4ex;
@@ -95,7 +94,7 @@ p {
 
 #updated {
   font-size: 90%;
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   color: var(--color-secondary);
   padding: 1.5em 1em 0.75em;
   border-bottom: 1px dotted var(--color-secondary);
@@ -149,7 +148,7 @@ figure {
 }
 
 figcaption {
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   padding-top: 1ex;
 }
 
@@ -188,7 +187,7 @@ pre {
   border: var(--border-width) solid var(--color-text);
   box-shadow: 4px 4px 6px var(--color-shadow);
   padding: 1em;
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   font-size: 0.88em;
 }
 
@@ -205,24 +204,24 @@ kbd {
 }
 
 .todo {
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   color: red;
 }
 .done {
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   color: green;
 }
 
 .tag {
   background-color: #eee;
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   padding: 2px;
   font-size: 80%;
   font-weight: normal;
 }
 
 .timestamp {
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   color: var(--color-secondary);
 }
 
@@ -238,7 +237,7 @@ h6 .timestamp {
 
 .published {
   font-size: 1.3em;
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   color: var(--color-secondary);
 }
 
@@ -277,7 +276,7 @@ footer {
 }
 
 .generated {
-  font-family: "Inconsolata", monospace;
+  font-family: "IBM Plex Mono", monospace;
   text-align: center;
 }
 
