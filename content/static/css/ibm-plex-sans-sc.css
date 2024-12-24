@@ -1,4 +1,14 @@
-/* ibm-plex-sans-sc.css */
+/**
+ * Font Name: IBM Plex Sans SC
+ * Version: 1.1.0
+ * Homepage: https://github.com/IBM/plex
+ * License: OFL-1.1 license
+ *
+ * Description:
+ * IBM Plex Sans SC is part of the IBM Plex font family. It provides a high-quality sans-serif
+ * typeface designed for Simplified Chinese, with variants for multiple weights and styles.
+ * This file contains the font-face declarations for all supported variants.
+ */
 
 /* Bold */
 @font-face {

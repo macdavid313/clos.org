@@ -1,4 +1,14 @@
-/* ibm-plex-sans.css */
+/**
+ * Font Name: IBM Plex Sans
+ * Version: 1.1.0
+ * Homepage: https://github.com/IBM/plex
+ * License: OFL-1.1 license
+ *
+ * Description:
+ * IBM Plex Sans is part of the IBM Plex font family, a versatile sans-serif typeface
+ * designed for modern applications. It includes support for multiple weights and styles.
+ * This file contains the font-face declarations for all supported variants.
+ */
 
 /* Bold */
 @font-face {
