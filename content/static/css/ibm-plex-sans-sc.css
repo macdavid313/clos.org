@@ -1,0 +1,65 @@
+/* ibm-plex-sans-sc.css */
+
+/* Bold */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-Bold.woff2') format('woff2');
+    font-weight: 700; /* Bold */
+    font-style: normal;
+}
+
+/* Extra Light */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-ExtraLight.woff2') format('woff2');
+    font-weight: 200; /* Extra Light */
+    font-style: normal;
+}
+
+/* Light */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-Light.woff2') format('woff2');
+    font-weight: 300; /* Light */
+    font-style: normal;
+}
+
+/* Medium */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-Medium.woff2') format('woff2');
+    font-weight: 500; /* Medium */
+    font-style: normal;
+}
+
+/* Regular */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-Regular.woff2') format('woff2');
+    font-weight: 400; /* Regular */
+    font-style: normal;
+}
+
+/* SemiBold */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-SemiBold.woff2') format('woff2');
+    font-weight: 600; /* SemiBold */
+    font-style: normal;
+}
+
+/* Text */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-Text.woff2') format('woff2');
+    font-weight: 500; /* Text (matches Medium for weight) */
+    font-style: normal;
+}
+
+/* Thin */
+@font-face {
+    font-family: 'IBM Plex Sans SC';
+    src: url('/static/fonts/ibm-plex-sans-sc/IBMPlexSansSC-Thin.woff2') format('woff2');
+    font-weight: 100; /* Thin */
+    font-style: normal;
+}
