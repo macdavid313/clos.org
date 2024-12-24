@@ -16,6 +16,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Bold.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Bold Italic */
@@ -24,6 +25,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-BoldItalic.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Extra Light */
@@ -32,6 +34,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-ExtraLight.woff2') format('woff2');
     font-weight: 200; /* Extra Light */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Extra Light Italic */
@@ -40,6 +43,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-ExtraLightItalic.woff2') format('woff2');
     font-weight: 200; /* Extra Light */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Regular */
@@ -48,6 +52,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Regular.woff2') format('woff2');
     font-weight: 400; /* Regular */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Italic */
@@ -56,6 +61,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Italic.woff2') format('woff2');
     font-weight: 400; /* Regular */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Light */
@@ -64,6 +70,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Light.woff2') format('woff2');
     font-weight: 300; /* Light */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Light Italic */
@@ -72,6 +79,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-LightItalic.woff2') format('woff2');
     font-weight: 300; /* Light */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Medium */
@@ -80,6 +88,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Medium.woff2') format('woff2');
     font-weight: 500; /* Medium */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Medium Italic */
@@ -88,6 +97,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-MediumItalic.woff2') format('woff2');
     font-weight: 500; /* Medium */
     font-style: italic;
+    font-display: swap;
 }
 
 /* SemiBold */
@@ -96,6 +106,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-SemiBold.woff2') format('woff2');
     font-weight: 600; /* SemiBold */
     font-style: normal;
+    font-display: swap;
 }
 
 /* SemiBold Italic */
@@ -104,6 +115,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-SemiBoldItalic.woff2') format('woff2');
     font-weight: 600; /* SemiBold */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Text */
@@ -112,6 +124,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Text.woff2') format('woff2');
     font-weight: 400; /* Text is equivalent to Regular weight */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Text Italic */
@@ -120,6 +133,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-TextItalic.woff2') format('woff2');
     font-weight: 400; /* Text Italic */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Thin */
@@ -128,6 +142,7 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-Thin.woff2') format('woff2');
     font-weight: 100; /* Thin */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Thin Italic */
@@ -136,4 +151,5 @@
     src: url('/static/fonts/ibm-plex-sans/IBMPlexSans-ThinItalic.woff2') format('woff2');
     font-weight: 100; /* Thin */
     font-style: italic;
+    font-display: swap;
 }

@@ -16,6 +16,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-Regular.woff2') format('woff2');
     font-weight: 400; /* Regular */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Medium */
@@ -24,6 +25,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-Medium.woff2') format('woff2');
     font-weight: 500; /* Medium */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Medium Italic */
@@ -32,6 +34,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-MediumItalic.woff2') format('woff2');
     font-weight: 500; /* Medium */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Light */
@@ -40,6 +43,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-Light.woff2') format('woff2');
     font-weight: 300; /* Light */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Light Italic */
@@ -48,6 +52,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-LightItalic.woff2') format('woff2');
     font-weight: 300; /* Light */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Italic */
@@ -56,6 +61,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-Italic.woff2') format('woff2');
     font-weight: 400; /* Regular */
     font-style: italic;
+    font-display: swap;
 }
 
 /* Bold */
@@ -64,6 +70,7 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-Bold.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: normal;
+    font-display: swap;
 }
 
 /* Bold Italic */
@@ -72,4 +79,5 @@
     src: url('/static/fonts/intel-one-mono/IntelOneMono-BoldItalic.woff2') format('woff2');
     font-weight: 700; /* Bold */
     font-style: italic;
+    font-display: swap;
 }
